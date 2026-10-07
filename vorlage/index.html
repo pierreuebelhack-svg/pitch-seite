@@ -1,0 +1,616 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>[FORMATTITEL]</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo+Narrow:wght@400;600&family=Archivo:wght@400;500&display=swap">
+<style>
+/* Layout nach dem Race-Scare-Deck: jede Seite ein randloses 16:9-Motiv, Text als harter Eingriff; am Handy Motiv oben, Text darunter.
+   Farben wie Race Scare (Signal Magenta). Bilder: Datei nach bilder/ legen (Namen siehe src), dann ersetzt sie den Platzhalter von selbst. */
+:root{
+  --tinte:#14110f; --grund:#1c1916; --papier:#f2f0ed; --grau:#a29d97; --linie:rgba(242,240,237,.22);
+  --signal:#e5007d;
+  --display:'Archivo Black','Arial Black',Impact,sans-serif;
+  --narrow:'Archivo Narrow','Arial Narrow','Helvetica Neue',sans-serif;
+  --text:'Archivo','Helvetica Neue',Arial,sans-serif;
+  --rand:clamp(16px,4.2vw,72px);
+  --u:1vw;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--tinte);color:var(--papier);font-family:var(--text);font-size:clamp(15px,calc(1.05*var(--u)),18px);line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+::selection{background:var(--signal);color:var(--papier)}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--signal);outline-offset:3px}
+
+/* Kopfleiste */
+.bar{position:fixed;inset:0 0 auto 0;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:16px;
+  padding:calc(env(safe-area-inset-top,0px) + 14px) var(--rand) 14px;font-family:var(--narrow);font-weight:600;font-size:12px;letter-spacing:.24em;text-transform:uppercase;
+  background:linear-gradient(var(--tinte),rgba(20,17,15,0));pointer-events:none}
+.bar b{font-family:var(--display);font-weight:400;letter-spacing:.06em}
+.bar b i{font-style:normal;color:var(--signal)}
+.bar .kap{font-variant-numeric:tabular-nums;color:var(--grau)}
+.bar .kap span{color:var(--papier)}
+.fortschritt{position:fixed;left:0;top:0;height:3px;width:100%;transform-origin:0 50%;transform:scaleX(0);background:var(--signal);z-index:21}
+
+/* Seiten */
+.seite{position:relative;min-height:56.25vw;display:flex;flex-direction:column;padding:clamp(72px,calc(7*var(--u)),120px) var(--rand) clamp(28px,calc(3*var(--u)),52px);overflow:hidden;isolation:isolate;border-top:1px solid #000;background:var(--tinte)}
+.seite>.motiv{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-1}
+/* Platzhalter, solange das Motiv fehlt: warmer Lichtkegel plus Beschriftung */
+.seite>.motiv.leer{background:radial-gradient(90% 80% at 50% 105%,rgba(229,0,125,.22),transparent 62%),var(--grund)}
+.seite>.motiv.leer span{position:absolute;right:var(--rand);top:clamp(64px,6vw,100px);font-family:var(--narrow);font-weight:600;font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--grau)}
+.inhalt{display:flex;flex-direction:column;gap:clamp(16px,calc(1.6*var(--u)),28px);flex:1}
+.eyebrow{font-family:var(--narrow);font-weight:600;font-size:clamp(11px,calc(.8*var(--u)),14px);letter-spacing:.3em;text-transform:uppercase;color:var(--papier)}
+.eyebrow i{font-style:normal;color:var(--signal)}
+h1,h2{font-family:var(--display);font-weight:400;text-transform:uppercase;line-height:.95;letter-spacing:-.005em;margin:0;text-wrap:balance}
+h2{font-size:clamp(34px,calc(4.6*var(--u)),88px);max-width:14ch}
+h2 em,h1 em{font-style:normal;color:var(--signal)}
+.lead{max-width:56ch;margin:0;font-size:clamp(15px,calc(1.15*var(--u)),20px)}
+.lead em{font-style:normal;color:var(--signal)}
+.fuss{margin-top:auto;padding-top:clamp(20px,calc(2*var(--u)),32px);display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-family:var(--narrow);font-size:12px;letter-spacing:.06em;color:var(--grau)}
+.fuss .marke{letter-spacing:.24em;text-transform:uppercase}
+.spalten{display:grid;grid-template-columns:repeat(var(--n,3),minmax(0,1fr));gap:clamp(16px,calc(2*var(--u)),40px);margin-top:auto}
+.spalte{border-top:2px solid var(--signal);padding-top:14px;min-width:0}
+.spalte h3{font-family:var(--display);font-weight:400;text-transform:uppercase;font-size:clamp(15px,calc(1.25*var(--u)),22px);line-height:1.05;margin:0 0 8px}
+.spalte .klein{font-family:var(--narrow);font-weight:600;font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--signal);margin:0 0 6px}
+.spalte p{margin:0;color:var(--papier);font-size:clamp(14px,calc(.95*var(--u)),16px)}
+.spalte .zahl{font-family:var(--display);font-size:clamp(30px,calc(3*var(--u)),56px);line-height:1;color:var(--signal);margin:0 0 10px}
+.plaetze{display:flex;gap:8px;margin:2px 0 10px}
+.plaetze i{width:12px;height:12px;border-radius:50%;background:var(--signal)}
+.plaetze i.raus{background:transparent;border:1.5px solid var(--linie)}
+
+/* Bewegung: alles ist im Ruhezustand sichtbar, nur ein kurzer Ruck beim Einfahren */
+@media (prefers-reduced-motion:no-preference){
+  .js .seite .inhalt>*{transition:transform .9s cubic-bezier(.2,.7,.1,1)}
+  .js .seite:not(.drin) .inhalt>*{transform:translateY(22px)}
+  .js .seite.drin .inhalt>*:nth-child(2){transition-delay:.06s}
+  .js .seite.drin .inhalt>*:nth-child(3){transition-delay:.12s}
+  .seite>.motiv{transition:transform 2.4s cubic-bezier(.2,.7,.1,1);transform:scale(1.04)}
+  .seite.drin>.motiv{transform:scale(1)}
+}
+
+/* 01 Titel */
+#titel{justify-content:flex-end}
+#titel .inhalt{justify-content:flex-end;align-items:center;text-align:center}
+#titel h1{font-size:clamp(40px,calc(7.4*var(--u)),150px);letter-spacing:-.01em}
+#titel .logline{font-size:clamp(16px,calc(1.4*var(--u)),24px);max-width:48ch;margin:0}
+#titel .daten{font-family:var(--narrow);font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--grau);display:flex;flex-wrap:wrap;justify-content:center;gap:6px 22px}
+#titel .daten b{color:var(--papier);font-weight:600}
+#titel .credit{font-family:var(--narrow);font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--grau)}
+#titel .credit b{color:var(--papier);font-weight:600}
+.scrollhinweis{font-family:var(--narrow);font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--grau);text-decoration:none;margin-top:8px}
+.scrollhinweis::after{content:"";display:block;width:1px;height:28px;background:var(--signal);margin:10px auto 0}
+
+/* 02 Idee */
+#idee .lead{font-size:clamp(20px,calc(1.95*var(--u)),36px);line-height:1.42}
+.format-zeile{display:flex;flex-wrap:wrap;align-items:center;gap:10px 12px}
+.fz-titel{font-family:var(--narrow);font-weight:600;font-size:clamp(13px,calc(1*var(--u)),17px);letter-spacing:.22em;text-transform:uppercase;margin-right:6px}
+.chip{display:inline-flex;align-items:baseline;gap:8px;padding:6px 12px;border:1px solid rgba(242,240,237,.7);background:rgba(20,17,15,.55);font-family:var(--narrow);font-weight:600;font-size:clamp(13px,calc(1*var(--u)),17px);letter-spacing:.2em;text-transform:uppercase}
+.chip i{font-style:normal;font-family:var(--display);letter-spacing:0;color:var(--signal)}
+
+/* 05 Welt */
+.thesen{list-style:none;padding:0;margin:0;display:grid;gap:clamp(12px,calc(1.4*var(--u)),22px);max-width:30ch}
+.thesen li{display:grid;gap:2px}
+.thesen small{font-family:var(--narrow);font-weight:600;font-size:11px;letter-spacing:.3em;color:var(--signal)}
+.thesen b{font-family:var(--display);font-weight:400;text-transform:uppercase;font-size:clamp(18px,calc(1.8*var(--u)),32px);line-height:1}
+
+/* 06 Eckdaten */
+#eckdaten .inhalt{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:clamp(20px,calc(3*var(--u)),56px);align-content:end}
+#eckdaten .links{display:flex;flex-direction:column;gap:clamp(16px,calc(1.6*var(--u)),28px)}
+.liste{list-style:none;margin:0;padding:0;display:grid}
+.liste li{border-bottom:1px solid var(--linie);padding:10px 0;display:grid;grid-template-columns:minmax(0,14ch) minmax(0,1fr);gap:12px;align-items:baseline}
+.liste .k{font-family:var(--narrow);font-weight:600;font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--grau)}
+.liste b{font-family:var(--display);font-weight:400;text-transform:uppercase;font-size:clamp(14px,calc(1.1*var(--u)),19px)}
+.absender b{display:block;font-family:var(--display);font-weight:400;text-transform:uppercase;font-size:clamp(20px,calc(2*var(--u)),36px);line-height:1}
+.absender span{display:block;color:var(--grau);margin-top:6px}
+
+/* BÜHNE: am Rechner ist jede Seite genau ein Bildschirm, Bild randlos, rastet beim Scrollen ein.
+   Schrift und Abstände in var(--u) = 1 % einer 16:9-Fläche, die ins Fenster passt. */
+@media (min-width:761px) and (min-aspect-ratio:1/1){
+  html{scroll-snap-type:y mandatory}
+  main{display:flex;flex-direction:column}
+  .seite{--u:min(1cqw,1.7778cqh);--bw:min(100vw,177.78svh);width:100%;height:100svh;min-height:0;margin:0;container-type:size;scroll-snap-align:start;scroll-snap-stop:always;padding:calc(var(--bw)*.055) max(var(--rand),calc((100vw - var(--bw))/2 + var(--bw)*.042)) calc(var(--bw)*.02)}
+  .fuss{padding-top:calc(1.2*var(--u)*.5625);font-size:max(10px,calc(.75*var(--u)))}
+
+  /* 01 Titel: Bild oben verankert, großer Verlauf nach unten, Text darunter */
+  #titel>.motiv{object-position:center 30%;-webkit-mask-image:linear-gradient(#000 40%,rgba(0,0,0,.5) 62%,transparent 86%);mask-image:linear-gradient(#000 40%,rgba(0,0,0,.5) 62%,transparent 86%)}
+  #titel .inhalt{gap:clamp(8px,calc(1.4*var(--u)*.5625),18px)}
+  #titel h1{font-size:min(calc(6.4*var(--u)),calc(10*var(--u)*.5625));white-space:nowrap}
+  #titel .logline{font-size:min(calc(1.6*var(--u)),calc(2.6*var(--u)*.5625))}
+  .scrollhinweis{margin-top:0}
+
+  /* 02 Idee: Bild rechts, weicher Verlauf nach links, Text steht frei */
+  #idee>.motiv{left:34%;width:66%;-webkit-mask-image:linear-gradient(to right,transparent 0%,rgba(0,0,0,.18) 12%,rgba(0,0,0,.52) 24%,rgba(0,0,0,.85) 36%,#000 48%);mask-image:linear-gradient(to right,transparent 0%,rgba(0,0,0,.18) 12%,rgba(0,0,0,.52) 24%,rgba(0,0,0,.85) 36%,#000 48%)}
+  #idee .inhalt{max-width:52%}
+
+  /* 03, 04, 06: Spalten unten, Verlauf von unten für Lesbarkeit */
+  #ablauf::after,#eckdaten::after{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(to top,rgba(20,17,15,.96) 0%,rgba(20,17,15,.85) 22%,rgba(20,17,15,.5) 42%,rgba(20,17,15,.12) 62%,rgba(20,17,15,0) 74%)}
+  #ablauf::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(rgba(20,17,15,.7),rgba(20,17,15,0) 30%)}
+
+  /* 05 Welt: Verlauf von links */
+  #welt::after{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(ellipse 58% 95% at 0% 40%,rgba(20,17,15,0.880) 0%,rgba(20,17,15,0.880) 5%,rgba(20,17,15,0.880) 10%,rgba(20,17,15,0.880) 15%,rgba(20,17,15,0.880) 20%,rgba(20,17,15,0.880) 25%,rgba(20,17,15,0.880) 30%,rgba(20,17,15,0.869) 35%,rgba(20,17,15,0.836) 40%,rgba(20,17,15,0.784) 45%,rgba(20,17,15,0.714) 50%,rgba(20,17,15,0.631) 55%,rgba(20,17,15,0.538) 60%,rgba(20,17,15,0.440) 65%,rgba(20,17,15,0.342) 70%,rgba(20,17,15,0.249) 75%,rgba(20,17,15,0.166) 80%,rgba(20,17,15,0.096) 85%,rgba(20,17,15,0.044) 90%,rgba(20,17,15,0.011) 95%,rgba(20,17,15,0.000) 100%)}
+}
+
+/* MITMACHEN: Quiz auf 03, Gänge zum Durchklicken auf 04, Studio-Umschalter auf 05 */
+.mit-knopf{align-self:flex-start;display:inline-flex;align-items:center;gap:clamp(12px,calc(1.2*var(--u)),20px);padding:clamp(14px,calc(1.2*var(--u)),22px) clamp(24px,calc(2.4*var(--u)),44px) clamp(14px,calc(1.2*var(--u)),22px) clamp(20px,calc(2*var(--u)),36px);border:0;background:var(--signal);color:var(--papier);font-family:var(--display);font-weight:400;font-size:clamp(17px,calc(1.7*var(--u)),30px);letter-spacing:.04em;text-transform:uppercase;cursor:pointer;transition:background .2s,transform .2s}
+.mit-knopf::before{content:"";border-left:.62em solid var(--papier);border-top:.4em solid transparent;border-bottom:.4em solid transparent}
+.mit-knopf:hover,.mit-knopf:focus-visible{background:#ff1a92;transform:scale(1.04)}
+
+/* 04 Ablauf: vier Runden zum Antippen, das Bild dahinter wechselt mit */
+.rbilder{background:var(--grund)}
+.rbild{position:absolute;inset:0;opacity:0;transition:opacity .7s ease}
+.rbild.an{opacity:1}
+.rbild img,.rbild video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+/* Seite 04: Verläufe nur unten hinter den Runden und oben links hinter dem Text */
+@media (min-width:761px) and (min-aspect-ratio:1/1){.rbilder::after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 58% 78% at 0% 30%,rgba(20,17,15,0.88) 0%,rgba(20,17,15,0.84) 38%,rgba(20,17,15,0.74) 50%,rgba(20,17,15,0.6) 58%,rgba(20,17,15,0.46) 65%,rgba(20,17,15,0.32) 72%,rgba(20,17,15,0.2) 79%,rgba(20,17,15,0.1) 86%,rgba(20,17,15,0.035) 93%,rgba(20,17,15,0) 100%)}#ablauf::after{background:linear-gradient(to top,rgba(20,17,15,0.9) 0%,rgba(20,17,15,0.86) 12%,rgba(20,17,15,0.8) 17%,rgba(20,17,15,0.7) 19.5%,rgba(20,17,15,0.56) 22%,rgba(20,17,15,0.42) 24.5%,rgba(20,17,15,0.29) 27%,rgba(20,17,15,0.18) 29.5%,rgba(20,17,15,0.1) 32%,rgba(20,17,15,0.045) 34.5%,rgba(20,17,15,0.015) 37%,rgba(20,17,15,0) 40%)!important}}
+.rbild .ph{position:absolute;inset:0;background:radial-gradient(80% 70% at 66% 60%,rgba(229,0,125,.16),transparent 62%),var(--grund)}
+.rbild .ph span{position:absolute;right:var(--rand);top:clamp(64px,6vw,100px);font-family:var(--narrow);font-weight:600;font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--grau)}
+.rstand{display:grid;gap:4px}
+.rstand b{font-family:var(--display);font-weight:400;text-transform:uppercase;font-size:clamp(30px,calc(3.6*var(--u)),68px);line-height:1;color:var(--signal)}
+.rstand span{font-size:clamp(15px,calc(1.15*var(--u)),20px);max-width:36ch}
+#ablauf .spalten{--n:4}
+.gang{font:inherit;color:inherit;text-align:left;background:none;border:0;border-top:2px solid var(--signal);padding:14px 0 0;cursor:pointer;transition:opacity .3s}
+.js .gang:not(.an){opacity:.42;border-top-color:var(--linie)}
+.gang:hover{opacity:1}
+.gang .wer{font-family:var(--narrow);font-weight:600;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--grau);margin:6px 0 0}
+.gang-hinweis{font-family:var(--narrow);font-weight:600;font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--grau);margin:0}
+.gang-hinweis b{color:var(--signal);font-weight:600}
+@media (max-width:760px),(max-aspect-ratio:1/1){
+  .rbild .ph span{top:auto;bottom:18px}
+  #ablauf .spalten{--n:2!important}
+}
+
+/* 05 Welt: drei Studio-Looks übereinander, einer sichtbar */
+.looks{background:var(--grund)}
+.look{position:absolute;inset:0;opacity:0;transition:opacity .8s ease}
+.look.an{opacity:1}
+.look img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.look .ph{position:absolute;inset:0;background:radial-gradient(90% 80% at 62% 100%,var(--ton),transparent 64%),var(--grund)}
+.look .ph span{position:absolute;right:var(--rand);top:clamp(64px,6vw,100px);font-family:var(--narrow);font-weight:600;font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--grau)}
+.look[data-look="1"]{--ton:rgba(176,98,46,.55)}
+.look[data-look="2"]{--ton:rgba(150,158,166,.42)}
+.look[data-look="3"]{--ton:rgba(201,148,86,.55)}
+.lookwahl{display:grid;gap:10px;max-width:420px}
+.lw{display:flex;align-items:center;gap:12px;padding:10px 14px 10px 10px;border:1px solid rgba(242,240,237,.45);background:rgba(20,17,15,.55);color:var(--papier);text-align:left;cursor:pointer;font:inherit;transition:border-color .15s,background .15s}
+.lw b{display:inline-grid;place-items:center;flex:none;width:clamp(28px,calc(2.2*var(--u)),40px);height:clamp(28px,calc(2.2*var(--u)),40px);border:1px solid var(--signal);font-family:var(--display);font-weight:400;font-size:clamp(14px,calc(1.2*var(--u)),20px);color:var(--signal)}
+.lw span{display:grid;font-family:var(--display);font-weight:400;text-transform:uppercase;font-size:clamp(13px,calc(1.05*var(--u)),18px);line-height:1.1}
+.lw small{font-family:var(--text);text-transform:none;font-size:clamp(12px,calc(.85*var(--u)),14px);color:var(--grau);margin-top:3px}
+.lw:hover,.lw:focus-visible{border-color:var(--signal)}
+.lw.an{background:var(--signal);border-color:var(--signal)}
+.lw.an b{background:var(--papier);border-color:var(--papier);color:var(--signal)}
+.lw.an small{color:var(--papier)}
+.jury{margin:0;display:grid;gap:8px}
+.jury .rahmen{position:relative;aspect-ratio:16/9;overflow:hidden;background:var(--grund)}
+.jury .ph{position:absolute;inset:0;background:radial-gradient(90% 80% at 50% 110%,rgba(229,0,125,.22),transparent 62%),var(--grund)}
+.jury .ph span{position:absolute;left:12px;top:10px;font-family:var(--narrow);font-weight:600;font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--grau)}
+.jury img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.jury figcaption{font-size:13px;color:var(--grau)}
+
+/* 03 QUIZ direkt auf der Seite: links Startschirm, Fragen, Ergebnis; rechts der Timer; dahinter optional ein Clip */
+#mechanik .inhalt{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);align-items:center;gap:clamp(20px,calc(4*var(--u)),80px)}
+#mechanik .q-schirme{grid-column:1;grid-row:1;min-width:0}
+#mechanik .q-uhr{grid-column:2;grid-row:1;justify-self:end;align-self:end;display:grid;justify-items:end;gap:6px;text-align:right;border-top:2px solid var(--signal);padding-top:14px;min-width:min(100%,calc(22*var(--u)))}
+.q-uhr small{font-family:var(--narrow);font-weight:600;font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--grau)}
+.q-minuten{font-family:var(--display);font-size:clamp(56px,calc(8*var(--u)),150px);line-height:.9;letter-spacing:-.02em;font-variant-numeric:tabular-nums;transition:color .3s}
+.q-minuten.minus{color:var(--signal)}
+.q-sek{display:flex;align-items:baseline;gap:12px}
+.q-sek span{font-family:var(--display);font-size:clamp(24px,calc(2.6*var(--u)),48px);line-height:1;color:var(--signal);font-variant-numeric:tabular-nums}
+.q-minuten.minus{color:var(--signal)}
+.q-schirm{display:flex;flex-direction:column;align-items:flex-start;gap:clamp(14px,calc(1.5*var(--u)),26px)}
+.q-schirm[hidden]{display:none}
+.q-zaehler{font-family:var(--narrow);font-weight:600;font-size:13px;letter-spacing:.3em;text-transform:uppercase;color:var(--grau);margin:0}
+.q-zaehler b{color:var(--signal);font-weight:600}
+.q-frage{font-family:var(--display);font-weight:400;text-transform:uppercase;line-height:1.02;margin:0;font-size:clamp(26px,calc(3.4*var(--u)),60px);max-width:18ch;text-wrap:balance}
+.q-zeit{width:min(520px,100%);height:6px;background:rgba(242,240,237,.2);position:relative;overflow:hidden}
+.q-zeit i{position:absolute;inset:0;background:var(--signal);transform-origin:0 50%}
+.q-antworten{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;width:min(680px,100%)}
+.q-antwort{padding:clamp(14px,calc(1.3*var(--u)),24px) 16px;border:2px solid var(--papier);background:rgba(20,17,15,.6);color:var(--papier);font-family:var(--display);font-size:clamp(16px,calc(1.5*var(--u)),26px);text-transform:uppercase;cursor:pointer;transition:border-color .12s}
+.q-antwort:hover,.q-antwort:focus-visible{border-color:var(--signal)}
+.q-antwort.richtig{background:var(--papier);color:var(--tinte);border-color:var(--papier)}
+.q-antwort.falsch{background:var(--signal);border-color:var(--signal)}
+.q-antwort:disabled{cursor:default}
+.q-rueck{min-height:1.4em;margin:0;font-family:var(--narrow);font-weight:600;font-size:14px;letter-spacing:.2em;text-transform:uppercase}
+.q-rueck.gut{color:var(--papier)}
+.q-rueck.schlecht{color:var(--signal)}
+.q-titel{font-family:var(--display);font-weight:400;text-transform:uppercase;line-height:.95;margin:0;font-size:clamp(30px,calc(3.8*var(--u)),72px);text-wrap:balance}
+.q-titel em{font-style:normal;color:var(--signal)}
+.q-text{margin:0;max-width:46ch;font-size:clamp(15px,calc(1.15*var(--u)),20px)}
+.q-zweit{padding:12px 24px;border:1px solid rgba(242,240,237,.7);background:rgba(20,17,15,.6);color:var(--papier);font-family:var(--narrow);font-weight:600;font-size:13px;letter-spacing:.22em;text-transform:uppercase;cursor:pointer}
+.q-zweit:hover,.q-zweit:focus-visible{border-color:var(--signal)}
+.q-knoepfe{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.q-schatz{display:flex;flex-wrap:wrap;gap:8px}
+.q-schatz span{padding:6px 12px;border:1px solid var(--signal);font-family:var(--narrow);font-weight:600;font-size:13px;letter-spacing:.2em;text-transform:uppercase}
+.q-liste{list-style:none;margin:0;padding:0;width:min(620px,100%);display:grid}
+.q-liste li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:16px;border-bottom:1px solid var(--linie);padding:6px 0;font-size:clamp(13px,calc(.95*var(--u)),15px)}
+.q-liste li span:last-child{font-family:var(--narrow);font-weight:600;letter-spacing:.14em;text-transform:uppercase;font-size:12px}
+.q-liste li.falsch span:last-child{color:var(--signal)}
+@media (min-width:761px) and (min-aspect-ratio:1/1){
+  #mechanik::after{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(to right,rgba(20,17,15,.92) 0%,rgba(20,17,15,.85) 46%,rgba(20,17,15,.5) 62%,rgba(20,17,15,.45) 72%,rgba(20,17,15,.8) 100%)}
+}
+@media (max-width:760px),(max-aspect-ratio:1/1){
+  #mechanik{padding-top:56px;scroll-margin-top:0}
+  #mechanik .inhalt{grid-template-columns:minmax(0,1fr);gap:18px}
+  #mechanik .q-uhr{grid-column:1;grid-row:1;justify-self:stretch;justify-items:start;text-align:left;align-self:start}
+  #mechanik .q-schirme{grid-row:2}
+  .q-antworten{grid-template-columns:minmax(0,1fr)}
+}
+
+@media (min-width:761px) and (min-aspect-ratio:1/1){
+  #welt .inhalt{max-width:48%}
+  #welt .jury{position:absolute;right:max(var(--rand),calc((100vw - var(--bw))/2 + var(--bw)*.042));bottom:calc(var(--bw)*.045);width:calc(24*var(--u))}
+  .look .ph span{top:calc(var(--bw)*.05)}
+}
+@media (max-width:760px),(max-aspect-ratio:1/1){
+  .look .ph span{top:auto;bottom:18px}
+  .jury{padding:0 var(--rand);margin-top:20px}
+}
+
+
+/* 02 Chips anwählbar */
+a.chip{text-decoration:none;color:inherit;cursor:pointer;transition:border-color .2s,background .2s}
+a.chip:hover,a.chip:focus-visible{border-color:var(--signal);background:rgba(229,0,125,.18)}
+/* Figuren: drei Karten mit Porträt */
+#figuren{background:radial-gradient(70% 60% at 50% 100%,rgba(229,0,125,.10),transparent 70%),var(--tinte)}
+.figuren{list-style:none;margin:auto 0 0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(16px,calc(2.4*var(--u)),44px)}
+.figur{display:flex;flex-direction:column;gap:6px;min-width:0}
+.figur-bild{aspect-ratio:3/4;overflow:hidden;background:var(--grund);margin-bottom:8px;max-height:calc(30*var(--u))}
+.figur-bild img{width:100%;height:100%;object-fit:cover;object-position:center 20%;display:block}
+.figur .station{font-family:var(--narrow);font-weight:600;font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--signal)}
+.figur b{font-family:var(--display);font-weight:400;text-transform:uppercase;font-size:clamp(20px,calc(2*var(--u)),36px);line-height:1}
+.figur .rolle{font-family:var(--narrow);font-weight:600;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--grau)}
+.figur p{margin:4px 0 0;font-size:clamp(14px,calc(.95*var(--u)),16px);max-width:36ch}
+@media (min-width:761px) and (min-aspect-ratio:1/1){
+  #figuren .inhalt{gap:calc(1.4*var(--u))}
+  .figur-bild{aspect-ratio:auto;height:calc(22*var(--u))}
+}
+@media (max-width:760px),(max-aspect-ratio:1/1){
+  #figuren{padding-top:64px}
+  .figuren{grid-template-columns:minmax(0,1fr);gap:28px}
+  .figur-bild{max-height:none;aspect-ratio:4/3}
+}
+
+
+/* Zurück-Knopf: erscheint auf der Zielseite, wenn man über einen internen Link kam, und führt zur Herkunftsseite */
+.zurueck{position:absolute;z-index:5;top:16px;right:16px;display:none;align-items:center;gap:10px;padding:8px 14px 8px 12px;border:1px solid rgba(242,240,237,.7);background:rgba(20,17,15,.6);color:var(--papier);text-decoration:none;font-family:var(--narrow);font-weight:600;font-size:13px;letter-spacing:.22em;text-transform:uppercase;cursor:pointer;transition:border-color .2s,background .2s}
+.zurueck::before{content:"";width:9px;height:9px;border-left:2px solid var(--signal);border-bottom:2px solid var(--signal);transform:rotate(45deg);margin-left:3px}
+.zurueck:hover,.zurueck:focus-visible{border-color:var(--signal);background:rgba(229,0,125,.18)}
+.seite.mit-zurueck .zurueck{display:inline-flex}
+@media (min-width:761px) and (min-aspect-ratio:1/1){
+  .zurueck{top:calc(var(--bw)*.05);right:max(var(--rand),calc((100vw - var(--bw))/2 + var(--bw)*.042));font-size:max(12px,calc(.85*var(--u)));padding:calc(.55*var(--u)) calc(1*var(--u)) calc(.55*var(--u)) calc(.85*var(--u))}
+}
+@media (max-width:760px),(max-aspect-ratio:1/1){.zurueck{top:auto;position:sticky;margin:12px var(--rand) 0;align-self:flex-start;order:-2}}
+
+
+/* Seite 07: weicher, höherer Verlauf von unten hinter Titel und Eckdaten */
+@media (min-width:761px) and (min-aspect-ratio:1/1){#eckdaten::after{background:linear-gradient(to top,rgba(20,17,15,0.900) 0%,rgba(20,17,15,0.900) 4%,rgba(20,17,15,0.900) 8%,rgba(20,17,15,0.900) 12%,rgba(20,17,15,0.900) 17%,rgba(20,17,15,0.900) 21%,rgba(20,17,15,0.900) 25%,rgba(20,17,15,0.900) 29%,rgba(20,17,15,0.900) 33%,rgba(20,17,15,0.900) 38%,rgba(20,17,15,0.900) 42%,rgba(20,17,15,0.900) 46%,rgba(20,17,15,0.900) 50%,rgba(20,17,15,0.869) 54%,rgba(20,17,15,0.780) 58%,rgba(20,17,15,0.645) 62%,rgba(20,17,15,0.484) 67%,rgba(20,17,15,0.317) 71%,rgba(20,17,15,0.169) 75%,rgba(20,17,15,0.060) 79%,rgba(20,17,15,0.005) 83%,rgba(20,17,15,0.000) 88%,rgba(20,17,15,0.000) 92%,rgba(20,17,15,0.000) 96%,rgba(20,17,15,0.000) 100%)!important}}
+/* Handy und Hochformat: Motiv oben, Text darunter */
+@media (max-width:760px),(max-aspect-ratio:1/1){
+  .seite{min-height:0;padding:0 0 28px}
+  .seite>.motiv{position:relative;inset:auto;height:auto;aspect-ratio:16/9;z-index:0;order:-1;mask-image:linear-gradient(#000 88%,transparent);-webkit-mask-image:linear-gradient(#000 88%,transparent)}
+  .seite>.motiv.leer span{top:auto;bottom:18px}
+  .inhalt{padding:0 var(--rand);margin-top:-8px}
+  .fuss{padding-inline:var(--rand)}
+  #titel .inhalt{margin-top:-14vw;position:relative}
+  #eckdaten .inhalt{grid-template-columns:minmax(0,1fr)}
+  .spalten{--n:1!important}
+  .bar{font-size:10px}
+  .bar .kap{display:none}
+}
+@media (min-width:761px) and (max-width:1100px) and (min-aspect-ratio:1/1){
+  .seite{min-height:100svh}
+}
+</style>
+</head>
+<body>
+
+<div class="fortschritt" id="fortschritt" aria-hidden="true"></div>
+<header class="bar" aria-hidden="true">
+  <b>[FORMAT] <i>[TITEL]</i></b>
+  <span class="kap"><span id="kapnr">01</span> / 07 · <span id="kapname">Titel</span></span>
+</header>
+
+<main>
+<!-- 01 TITEL: Vollbild-Clip oder -Bild. Datei: clips/01_titel.mp4 (oder bilder/01_titel.jpg) -->
+<section class="seite" id="titel" data-name="Titel">
+  <div class="motiv leer"><span>01 · Titelmotiv</span></div>
+  <video class="motiv" src="clips/01_titel.mp4" autoplay muted loop playsinline aria-label="[Bildbeschreibung Titelclip]" onloadeddata="var s=this.parentNode.querySelector('.motiv.leer');if(s)s.remove()" onerror="this.remove()"></video>
+  <div class="inhalt">
+    <div class="eyebrow">Ein Showformat</div>
+    <h1>[Formattitel] <em>[Akzentwort]</em></h1>
+    <p class="logline">[Logline in ein bis zwei Sätzen: Wer, was, welche Mechanik.]</p>
+    <div class="daten"><span><b>[6 Folgen à 45 Minuten]</b></span><span>[Genre]</span></div>
+    <a class="scrollhinweis" href="#idee">[Einstiegswort]</a>
+    <div class="credit">Eine Entwicklung von <b>[Absender]</b></div>
+  </div>
+</section>
+
+<!-- 02 IDEE: drei anklickbare Chips springen auf Figuren, Ablauf, Mitspielen -->
+<section class="seite" id="idee" data-name="Die Idee">
+  <button class="zurueck" type="button" data-zurueck>Zurück</button>
+  <div class="motiv leer"><span>02 · Ideenmotiv</span></div>
+  <video class="motiv" src="clips/02_idee.mp4" autoplay muted loop playsinline aria-label="[Bildbeschreibung]" onloadeddata="var s=this.parentNode.querySelector('.motiv.leer');if(s)s.remove()" onerror="this.remove()"></video>
+  <div class="inhalt">
+    <div class="eyebrow">02 · Die Idee</div>
+    <h2>[Kern der Idee] <em>[Pointe.]</em></h2>
+    <div class="format-zeile"><span class="fz-titel">[Formattyp]</span><a class="chip" href="#figuren" title="Die Figuren"><i>3</i>[Figuren]</a><a class="chip" href="#ablauf" title="Der Ablauf"><i>3</i>[Runden]</a><a class="chip" href="#mechanik" title="Selbst testen"><i>1</i>[Mechanik]</a></div>
+    <p class="lead" style="max-width:40ch">[Die Idee in drei bis vier Sätzen. Schluss mit einer Zuspitzung:] <em>[Zuspitzung.]</em></p>
+  </div>
+  <div class="fuss"><span></span><span class="marke">[FORMATTITEL] · 02</span></div>
+</section>
+
+<!-- 03 FIGUREN: drei Karten. Porträts 4:3, Person mittig. bilder/figur_a.jpg, figur_b.jpg, figur_c.jpg -->
+<section class="seite" id="figuren" data-name="Die Figuren">
+  <button class="zurueck" type="button" data-zurueck>Zurück</button>
+  <div class="inhalt">
+    <div class="eyebrow">03 · [Die Figuren] · <i>Beispielbesetzung</i></div>
+    <h2 style="max-width:none">[Drei Figuren.] <em>[Drei Geschichten.]</em></h2>
+    <p class="lead" style="max-width:52ch">[Wer tritt an, was haben sie zu beweisen?]</p>
+    <ul class="figuren">
+      <li class="figur"><div class="figur-bild"><img src="bilder/figur_a.jpg" alt="[Beschreibung]" loading="lazy" onerror="this.remove()"></div><span class="station">[Position A]</span><b>[Name A]</b><span class="rolle">[Rolle A]</span><p>[Zwei Sätze Charakter.]</p></li>
+      <li class="figur"><div class="figur-bild"><img src="bilder/figur_b.jpg" alt="[Beschreibung]" loading="lazy" onerror="this.remove()"></div><span class="station">[Position B]</span><b>[Name B]</b><span class="rolle">[Rolle B]</span><p>[Zwei Sätze Charakter.]</p></li>
+      <li class="figur"><div class="figur-bild"><img src="bilder/figur_c.jpg" alt="[Beschreibung]" loading="lazy" onerror="this.remove()"></div><span class="station">[Position C]</span><b>[Name C]</b><span class="rolle">[Rolle C]</span><p>[Zwei Sätze Charakter.]</p></li>
+    </ul>
+  </div>
+  <div class="fuss"><span>Fiktive Figuren, KI-generiert</span><span class="marke">[FORMATTITEL] · 03</span></div>
+</section>
+
+<!-- 04 MECHANIK ZUM MITSPIELEN: Quiz mit Zeitdruck. Fragen im Skript unten (POOL). Hintergrund clips/04_mechanik.mp4 -->
+<section class="seite" id="mechanik" data-name="Die Mechanik">
+  <button class="zurueck" type="button" data-zurueck>Zurück</button>
+  <video class="motiv" src="clips/04_mechanik.mp4" autoplay muted loop playsinline aria-label="[Bildbeschreibung]" onerror="this.remove()"></video>
+  <div class="inhalt">
+    <div class="q-uhr" aria-hidden="true">
+      <small>[Deine Zeit]</small>
+      <div class="q-minuten" data-q="minuten">20:00</div>
+      <div class="q-sek"><span data-q="sek">0:08</span><small data-q="seklabel">pro Frage</small></div>
+    </div>
+    <div class="q-schirme">
+      <div class="q-schirm" data-schirm="start">
+        <div class="eyebrow">04 · Die Mechanik · <i>zum Mitspielen</i></div>
+        <h2>[Die Regel] <em>[in fünf Wörtern.]</em></h2>
+        <p class="q-text">[Die Mechanik in zwei Sätzen. Was bringt eine richtige Antwort, was kostet eine falsche?]</p>
+        <p class="q-text" style="color:var(--grau)">Probier es selbst: drei Fragen, je 8 Sekunden.</p>
+        <button class="mit-knopf" type="button" data-q="los">[Startknopf]</button>
+      </div>
+      <div class="q-schirm" data-schirm="frage" hidden>
+        <p class="q-zaehler">Fragerunde · Frage <b data-q="nr">1</b> von 3</p>
+        <h3 class="q-frage" data-q="frage"></h3>
+        <div class="q-zeit"><i data-q="zeit"></i></div>
+        <div class="q-antworten" data-q="antworten"></div>
+        <p class="q-rueck" data-q="rueck" aria-live="polite"></p>
+      </div>
+      <div class="q-schirm" data-schirm="ende" hidden>
+        <p class="q-zaehler">Dein Ergebnis</p>
+        <h3 class="q-titel" data-q="ergebnis"></h3>
+        <p class="q-text" data-q="ergebnistext"></p>
+        <div class="q-schatz" data-q="schatz"></div>
+        <ul class="q-liste" data-q="liste"></ul>
+        <div class="q-knoepfe"><button class="mit-knopf" type="button" data-q="nochmal">Nochmal</button><a class="q-zweit" href="#ablauf" style="text-decoration:none">Weiter zum Ablauf</a></div>
+      </div>
+    </div>
+  </div>
+  <div class="fuss"><span></span><span class="marke">[FORMATTITEL] · 04</span></div>
+</section>
+
+<!-- 05 ABLAUF: vier Runden zum Antippen, Vollbild wechselt mit. Je Runde clips/05_runde_N.mp4 oder bilder/05_runde_N.jpg. Texte im Skript unten (STAND) -->
+<section class="seite" id="ablauf" data-name="Der Ablauf">
+  <button class="zurueck" type="button" data-zurueck>Zurück</button>
+  <div class="motiv rbilder">
+    <div class="rbild an" data-runde="1"><div class="ph"><span>Runde 1</span></div><img src="bilder/05_runde_1.jpg" alt="" loading="lazy" onload="this.parentNode.querySelector('.ph').remove()" onerror="this.remove()"><video src="clips/05_runde_1.mp4" autoplay muted loop playsinline onloadeddata="var p=this.parentNode.querySelector('.ph');if(p)p.remove()" onerror="this.remove()"></video></div>
+    <div class="rbild" data-runde="2"><div class="ph"><span>Runde 2</span></div><img src="bilder/05_runde_2.jpg" alt="" loading="lazy" onload="this.parentNode.querySelector('.ph').remove()" onerror="this.remove()"><video src="clips/05_runde_2.mp4" autoplay muted loop playsinline onloadeddata="var p=this.parentNode.querySelector('.ph');if(p)p.remove()" onerror="this.remove()"></video></div>
+    <div class="rbild" data-runde="3"><div class="ph"><span>Runde 3</span></div><img src="bilder/05_runde_3.jpg" alt="" loading="lazy" onload="this.parentNode.querySelector('.ph').remove()" onerror="this.remove()"><video src="clips/05_runde_3.mp4" autoplay muted loop playsinline onloadeddata="var p=this.parentNode.querySelector('.ph');if(p)p.remove()" onerror="this.remove()"></video></div>
+    <div class="rbild" data-runde="4"><div class="ph"><span>Finale</span></div><img src="bilder/05_runde_4.jpg" alt="" loading="lazy" onload="this.parentNode.querySelector('.ph').remove()" onerror="this.remove()"><video src="clips/05_runde_4.mp4" autoplay muted loop playsinline onloadeddata="var p=this.parentNode.querySelector('.ph');if(p)p.remove()" onerror="this.remove()"></video></div>
+  </div>
+  <div class="inhalt">
+    <div class="eyebrow">05 · Der Ablauf einer Folge</div>
+    <h2>[Drei Runden.] <em>[Ein Sieger.]</em></h2>
+    <div class="rstand" aria-live="polite"><b data-r="kopf"></b><span data-r="satz"></span></div>
+    <p class="gang-hinweis">Runde <b>antippen</b></p>
+    <div class="spalten" role="group" aria-label="Runde wählen">
+      <button type="button" class="spalte gang an" data-runde="1" aria-pressed="true"><p class="klein">Runde 1</p><h3>[Name Runde 1]</h3><p class="wer">[Kurzinfo]</p></button>
+      <button type="button" class="spalte gang" data-runde="2" aria-pressed="false"><p class="klein">Runde 2</p><h3>[Name Runde 2]</h3><p class="wer">[Kurzinfo]</p></button>
+      <button type="button" class="spalte gang" data-runde="3" aria-pressed="false"><p class="klein">Runde 3</p><h3>[Name Runde 3]</h3><p class="wer">[Kurzinfo]</p></button>
+      <button type="button" class="spalte gang" data-runde="4" aria-pressed="false"><p class="klein">Finale</p><h3>[Name Finale]</h3><p class="wer">[Kurzinfo]</p></button>
+    </div>
+  </div>
+  <div class="fuss"><span></span><span class="marke">[FORMATTITEL] · 05</span></div>
+</section>
+
+<!-- 06 WELT: drei Looks zum Umschalten. Deckungsgleiche Bilder (gleiche Kamera, nur Material/Licht anders): bilder/06_look_1.jpg, _2, _3 -->
+<section class="seite" id="welt" data-name="Die Welt">
+  <button class="zurueck" type="button" data-zurueck>Zurück</button>
+  <div class="motiv looks">
+    <div class="look an" data-look="1"><div class="ph"><span>Look 1</span></div><img src="bilder/06_look_1.jpg" alt="[Look 1]" loading="lazy" onload="this.parentNode.querySelector('.ph').remove()" onerror="this.remove()"></div>
+    <div class="look" data-look="2"><div class="ph"><span>Look 2</span></div><img src="bilder/06_look_2.jpg" alt="[Look 2]" loading="lazy" onload="this.parentNode.querySelector('.ph').remove()" onerror="this.remove()"></div>
+    <div class="look" data-look="3"><div class="ph"><span>Look 3</span></div><img src="bilder/06_look_3.jpg" alt="[Look 3]" loading="lazy" onload="this.parentNode.querySelector('.ph').remove()" onerror="this.remove()"></div>
+  </div>
+  <div class="inhalt">
+    <div class="eyebrow">06 · Die Welt · <i>selbst umschalten</i></div>
+    <h2>[Eine Bühne.] <em>[Drei Looks.]</em></h2>
+    <p class="lead" style="max-width:36ch">[Was bleibt gleich, was ist verhandelbar?]</p>
+    <div class="lookwahl" role="group" aria-label="Look wählen">
+      <button type="button" class="lw an" data-look="1" aria-pressed="true"><b>1</b><span>[Look 1]<small>[drei Stichworte]</small></span></button>
+      <button type="button" class="lw" data-look="2" aria-pressed="false"><b>2</b><span>[Look 2]<small>[drei Stichworte]</small></span></button>
+      <button type="button" class="lw" data-look="3" aria-pressed="false"><b>3</b><span>[Look 3]<small>[drei Stichworte]</small></span></button>
+    </div>
+  </div>
+  <div class="fuss"><span></span><span class="marke">[FORMATTITEL] · 06</span></div>
+</section>
+
+<!-- 07 ECKDATEN: Schlussbild bilder/07_schluss.jpg -->
+<section class="seite" id="eckdaten" data-name="Eckdaten">
+  <button class="zurueck" type="button" data-zurueck>Zurück</button>
+  <div class="motiv leer"><span>07 · Schlussbild</span></div>
+  <img class="motiv" src="bilder/07_schluss.jpg" alt="[Bildbeschreibung]" loading="lazy" onload="var p=this.previousElementSibling;if(p&&p.classList.contains('leer'))p.remove()" onerror="this.remove()">
+  <div class="inhalt">
+    <div class="links">
+      <div class="eyebrow">07 · Eckdaten</div>
+      <h2>[Formattitel] <em>[Akzentwort.]</em></h2>
+      <div class="absender"><b>[Firma]</b><span>[Name · Rolle]</span><span><a href="mailto:[mail@beispiel.de]">[mail@beispiel.de]</a></span></div>
+    </div>
+    <ul class="liste">
+      <li><span class="k">Genre</span><b>[Genre]</b></li>
+      <li><span class="k">Umfang</span><b>[Folgen × Minuten]</b></li>
+      <li><span class="k">Sendeplatz</span><b>[Sendeplatz]</b></li>
+      <li><span class="k">[Merkmal]</span><b>[Wert]</b></li>
+    </ul>
+  </div>
+  <div class="fuss"><span>Demo-Format · alle Bilder KI-generiert, keine echten Personen</span><span class="marke">[FORMATTITEL] · 07</span></div>
+</section>
+</main>
+
+<script>
+(function(){
+  document.documentElement.classList.add('js');
+  var seiten=[].slice.call(document.querySelectorAll('.seite'));
+  var nr=document.getElementById('kapnr'), name=document.getElementById('kapname'), balken=document.getElementById('fortschritt');
+  function aktiv(s){var i=seiten.indexOf(s);nr.textContent=String(i+1).padStart(2,'0');name.textContent=s.dataset.name;}
+  if('IntersectionObserver' in window){
+    var einfahren=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting)e.target.classList.add('drin');});},{threshold:.18});
+    var kapitel=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting)aktiv(e.target);});},{rootMargin:'-45% 0px -50% 0px'});
+    seiten.forEach(function(s){einfahren.observe(s);kapitel.observe(s);});
+  } else seiten.forEach(function(s){s.classList.add('drin');});
+  seiten[0].classList.add('drin');
+  function fortschritt(){var h=document.documentElement.scrollHeight-innerHeight;balken.style.transform='scaleX('+(h>0?scrollY/h:0)+')';}
+  addEventListener('scroll',fortschritt,{passive:true});fortschritt();
+  // Vorführen: Pfeiltasten und Bild auf/ab springen seitenweise
+  addEventListener('keydown',function(e){
+    if(document.documentElement.classList.contains('q-an'))return;
+    var vor=['ArrowDown','PageDown','ArrowRight'].indexOf(e.key)>-1, zur=['ArrowUp','PageUp','ArrowLeft'].indexOf(e.key)>-1;
+    if(!vor&&!zur)return;
+    var y=scrollY+4, i=seiten.findIndex(function(s){return s.offsetTop>y;});
+    var akt=(i===-1?seiten.length:i)-1;
+    var ziel=vor?seiten[Math.min(akt+1,seiten.length-1)]:seiten[Math.max(seiten[akt]&&Math.abs(seiten[akt].offsetTop-scrollY)<8?akt-1:akt,0)];
+    e.preventDefault();ziel.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
+  });
+})();
+</script>
+<script>
+/* 04 Ablauf: Runde antippen, Bild und Stand wechseln */
+(function(){
+  var STAND={ /* je Runde: Überschrift, ein Satz */
+    '1':['[Stand Runde 1]','[Was passiert in Runde 1?]'],
+    '2':['[Stand Runde 2]','[Was passiert in Runde 2?]'],
+    '3':['[Stand Runde 3]','[Was passiert in Runde 3?]'],
+    '4':['[Finale]','[Wie endet die Folge?]']
+  };
+  var knoepfe=[].slice.call(document.querySelectorAll('.gang')), bilder=[].slice.call(document.querySelectorAll('.rbild'));
+  var kopf=document.querySelector('[data-r="kopf"]'), satz=document.querySelector('[data-r="satz"]');
+  function zeige(n){
+    knoepfe.forEach(function(k){var an=k.dataset.runde===n;k.classList.toggle('an',an);k.setAttribute('aria-pressed',an);});
+    bilder.forEach(function(b){b.classList.toggle('an',b.dataset.runde===n);});
+    kopf.textContent=STAND[n][0];satz.textContent=STAND[n][1];
+  }
+  knoepfe.forEach(function(k){k.addEventListener('click',function(){zeige(k.dataset.runde);});});
+  zeige('1');
+  /* Wer auf die Ablauf-Seite kommt, startet mit Runde 1, Clip von vorn */
+  var seite=document.getElementById('ablauf'), drin=false;
+  function pruefe(){
+    var r=seite.getBoundingClientRect(), h=innerHeight;
+    var sichtbar=Math.min(r.bottom,h)-Math.max(r.top,0) > h*.5;
+    if(sichtbar&&!drin){zeige('1');var v=seite.querySelector('.rbild[data-runde="1"] video');if(v){v.currentTime=0;var pl=v.play();if(pl&&pl.catch)pl.catch(function(){});}}
+    drin=sichtbar;
+  }
+  addEventListener('scroll',pruefe,{passive:true});addEventListener('resize',pruefe);pruefe();
+})();
+
+/* 05 Studio-Looks */
+(function(){
+  var knoepfe=[].slice.call(document.querySelectorAll('.lw')), looks=[].slice.call(document.querySelectorAll('.look'));
+  knoepfe.forEach(function(k){k.addEventListener('click',function(){
+    knoepfe.forEach(function(x){var an=x===k;x.classList.toggle('an',an);x.setAttribute('aria-pressed',an);});
+    looks.forEach(function(l){l.classList.toggle('an',l.dataset.look===k.dataset.look);});
+  });});
+})();
+
+/* 03 Quiz direkt auf der Seite: 3 Fragen aus dem Pool, je 8 s; falsch oder zu langsam kostet eine Minute */
+(function(){
+  var POOL=[ /* mindestens 3, besser 8 Fragen; r = Index der richtigen Antwort. Nur nachprüfbare Fakten! */
+    {f:'[Frage 1?]',a:['[Antwort A]','[Antwort B]'],r:0},
+    {f:'[Frage 2?]',a:['[Antwort A]','[Antwort B]'],r:1},
+    {f:'[Frage 3?]',a:['[Antwort A]','[Antwort B]'],r:0},
+    {f:'[Frage 4?]',a:['[Antwort A]','[Antwort B]'],r:1}
+  ];
+  var SCHATZ=['[Belohnung 1]','[Belohnung 2]','[Belohnung 3]']; /* Belohnung je richtiger Antwort */
+  var ERGEBNIS=[ /* nach Anzahl richtiger Antworten 0..3: [Überschrift mit <em>Akzent</em>, Satz] */
+    ['[0 richtig] <em>[Akzent]</em>','[Satz]'],
+    ['[1 richtig] <em>[Akzent]</em>','[Satz]'],
+    ['[2 richtig] <em>[Akzent]</em>','[Satz]'],
+    ['[3 richtig] <em>[Akzent]</em>','[Satz]']
+  ];
+  var ZEIT=8000;
+  var q=document.getElementById('mechanik'), $=function(k){return q.querySelector('[data-q="'+k+'"]');};
+  var schirme=[].slice.call(q.querySelectorAll('[data-schirm]'));
+  var runde=[],i=0,start=0,raf=0,frei=false,ergebnis=[],minuten=20,schatz=[],timer=0;
+  var html=document.documentElement;
+  function zeige(n){schirme.forEach(function(s){s.hidden=s.dataset.schirm!==n;});}
+  function mische(a){a=a.slice();for(var k=a.length-1;k>0;k--){var j=Math.floor(Math.random()*(k+1));var t=a[k];a[k]=a[j];a[j]=t;}return a;}
+  function uhr(anteil){ // Countdown der laufenden Frage in Sekunden
+    $('sek').textContent='0:0'+Math.ceil(anteil*ZEIT/1000);
+  }
+  function minutenAnzeige(minus){var m=$('minuten');m.textContent=minuten+':00';m.classList.toggle('minus',!!minus);}
+  function neu(fokus){cancelAnimationFrame(raf);clearTimeout(timer);frei=false;html.classList.remove('q-an');minuten=20;schatz=[];ergebnis=[];minutenAnzeige();uhr(1);$('seklabel').textContent='pro Frage';zeige('start');if(fokus)$('los').focus({preventScroll:true});}
+  function los(){runde=mische(POOL).slice(0,3);i=0;minuten=20;schatz=[];ergebnis=[];minutenAnzeige();html.classList.add('q-an');$('seklabel').textContent='Fragerunde';frage();if(q.getBoundingClientRect().top<0)q.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});}
+  function frage(){
+    var f=runde[i];zeige('frage');$('nr').textContent=i+1;$('frage').textContent=f.f;$('rueck').textContent='';$('rueck').className='q-rueck';
+    var box=$('antworten');box.innerHTML='';
+    f.a.forEach(function(t,k){var b=document.createElement('button');b.type='button';b.className='q-antwort';b.textContent=t;b.addEventListener('click',function(){antwort(k,b);});box.appendChild(b);});
+    box.firstChild.focus({preventScroll:true});
+    frei=true;start=performance.now();tick();
+  }
+  function tick(){
+    var rest=Math.max(0,1-(performance.now()-start)/ZEIT);
+    $('zeit').style.transform='scaleX('+rest+')';uhr(rest);
+    if(rest<=0){antwort(-1,null);return;}
+    raf=requestAnimationFrame(tick);
+  }
+  function antwort(k,knopf){
+    if(!frei)return;frei=false;cancelAnimationFrame(raf);
+    var f=runde[i],ok=k===f.r,knoepfe=[].slice.call($('antworten').children);
+    knoepfe.forEach(function(b,n){b.disabled=true;if(n===f.r)b.classList.add('richtig');});
+    if(knopf&&!ok)knopf.classList.add('falsch');
+    var r=$('rueck');
+    if(ok){var z=SCHATZ[schatz.length];schatz.push(z);r.textContent='Richtig · '+z;r.classList.add('gut');minutenAnzeige();}
+    else{minuten--;r.textContent=(k<0?'Zu langsam':'Falsch')+' · eine Minute weg';r.classList.add('schlecht');minutenAnzeige(true);}
+    ergebnis.push({f:f.f,ok:ok,langsam:k<0});
+    timer=setTimeout(function(){i++;if(i<runde.length)frage();else ende();},1500);
+  }
+  function ende(){
+    var n=schatz.length;zeige('ende');$('sek').textContent='0:00';$('seklabel').textContent='Runde vorbei';html.classList.remove('q-an');
+    $('ergebnis').innerHTML=ERGEBNIS[n][0];$('ergebnistext').textContent=ERGEBNIS[n][1];
+    $('schatz').innerHTML=schatz.map(function(z){return '<span>'+z+'</span>';}).join('');
+    $('liste').innerHTML=ergebnis.map(function(e){return '<li class="'+(e.ok?'':'falsch')+'"><span>'+e.f+'</span><span>'+(e.ok?'Richtig':(e.langsam?'Zu langsam':'Falsch'))+'</span></li>';}).join('');
+    $('nochmal').focus({preventScroll:true});
+  }
+  $('los').addEventListener('click',los);$('nochmal').addEventListener('click',function(){neu(false);los();});
+  uhr(1);
+})();
+</script>
+
+<script>
+/* Zurück: merkt sich die Lesestelle, von der ein interner Link kam, und führt genau dorthin zurück */
+(function(){
+  var ziel=null, merkY=0, angekommen=false, ruhig=matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth';
+  function aus(){if(ziel){ziel.classList.remove('mit-zurueck');ziel=null;angekommen=false;}}
+  document.addEventListener('click',function(e){
+    var z=e.target.closest&&e.target.closest('[data-zurueck]');
+    if(z){e.preventDefault();var y=merkY;aus();scrollTo({top:y,behavior:ruhig});return;}
+    var a=e.target.closest&&e.target.closest('a[href^="#"]');if(!a)return;
+    var von=a.closest('.seite'), nach=document.getElementById(a.getAttribute('href').slice(1));
+    if(!von||!nach||von===nach||!nach.classList.contains('seite'))return;
+    aus();merkY=scrollY;ziel=nach;nach.classList.add('mit-zurueck');
+  });
+  /* Erst wenn die Zielseite erreicht ist, darf freies Weiterscrollen den Knopf wieder ausblenden */
+  addEventListener('scroll',function(){
+    if(!ziel)return;var r=ziel.getBoundingClientRect(),h=innerHeight;
+    if(!angekommen){if(Math.abs(r.top)<h*.25)angekommen=true;return;}
+    if(r.bottom<h*.3||r.top>h*.7)aus();
+  },{passive:true});
+})();
+</script>
+</body>
+</html>
